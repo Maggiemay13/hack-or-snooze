@@ -18,45 +18,27 @@ async function getAndShowStoriesOnStart() {
  *
  * Returns the markup for the story.
  */
-
-function generateStoryMarkup(story) {
-  // console.debug("generateStoryMarkup", story);
-
-  const hostName = story.getHostName();
-  // const showStar = Boolean(currentUser);
+function generateStoryMarkup(story, showDeleteBtn = false) {
+  console.debug("generateStoryMarkup");
+  const showStar = Boolean(currentUser);
 
   return $(`
-  <li id="${story.storyId}">
-  <div>
-  <a href="${story.url}" target="a_blank" class="story-link">
-    ${story.title}
-  </a>
-  <small class="story-hostname">(${hostName})</small>
-  <div class="story-author">by ${story.author}</div>
-  <div class="story-user">posted by ${story.username}</div>
-  </div>
-</li>
+      <li id="${story.storyId}">
+        
+        ${showStar ? getStarHTML(story, currentUser) : ""}
+        <a href="${story.url}" target="a_blank" class="story-link">
+          ${story.title}
+        </a>
+        <small class="story-hostname">(${story.getHostName()})</small>
+        <br>
+        <small class="story-author">by ${story.author}</small>
+        <br>
+        <small class="story-user">posted by ${story.username}</small>
+        ${showDeleteBtn ? getDeleteBtn() : ""}
+      </li>
+      <hr>
     `);
 }
-
-//make delet button HTML for story
-
-// function getDeleteBtnHTML() {
-//   return `
-//       <span class="trash-can">
-//         <i class="fas fa-trash-alt"></i>
-//       </span>`;
-// }
-
-//make favorite - not favorite star for story
-// function getStarHTML(story) {
-//   const isFavorite = user.isFavorite(story);
-//   const starType = isFavorite ? "fas" : "far";
-//   return `
-//       <span class="star">
-//         <i class="${starType} fa-star"></i>
-//       </span>`;
-// }
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
@@ -81,7 +63,6 @@ async function deleteStory(evt) {
 
   const $closestLi = $(evt.target).closest("li");
   const storyId = $closestLi.attr("id");
-
   await storyList.removeStory(currentUser, storyId);
 
   // re-generate story list
@@ -91,6 +72,8 @@ async function deleteStory(evt) {
 $ownStories.on("click", ".trash-can", deleteStory);
 
 /** Handle submitting new story form. */
+//new story form only refreses once new stpry info is submitted - otherwise submit new story, favorites, and my stories form stays on page unless the page is refreshed
+//star is not showing up so users can not favorite story
 
 async function submitNewStory(evt) {
   console.debug("submitNewStory");
@@ -133,8 +116,24 @@ function putUserStoriesOnPage() {
       $ownStories.append($story);
     }
   }
-
   $ownStories.show();
+}
+
+//make delete button HTML for story
+
+function getDeleteBtnHTML() {
+  return `
+      <span class="trash-can">
+        <i class="fas fa-trash-alt"></i>
+      </span>`;
+}
+// make favorite - not favorite star for story
+function getStarHTML(story, user) {
+  const starType = user.isFavorite(story) ? "fas" : "far";
+  return `
+      <span class="star">
+        <i class="${starType} fa-star"></i>
+      </span>`;
 }
 
 //put favorites list on the page
@@ -166,15 +165,16 @@ async function toggleStoryFavorite(evt) {
   const storyId = $closestLi.attr("id");
   const story = storyList.stories.find((s) => s.storyId === storyId);
 
-  // see if the item is already favorited (checking the presence of star)
+  // see if the item is already favorited (checking by presence of star)
   if ($tgt.hasClass("fas")) {
-    //currently a favorite: remove from user's fav list and change star
+    // currently a favorite: remove from user's fav list and change star
     await currentUser.removeFavorite(story);
     $tgt.closest("i").toggleClass("fas far");
   } else {
-    //currently not a favorite: do the opposite
-    await currentUser.addFavorites(story);
+    // currently not a favorite: do the opposite
+    await currentUser.addFavorite(story);
     $tgt.closest("i").toggleClass("fas far");
   }
 }
+
 $storiesLists.on("click", ".star", toggleStoryFavorite);

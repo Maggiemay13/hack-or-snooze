@@ -6,8 +6,8 @@ body {
   height: 100vh;
   background-image: radial-gradient(
     circle,
-    rgb(238, 174, 202) 0%,
-    rgb(148, 187, 233) 100%
+    rgb(250, 187, 216) 0%,
+    rgb(148, 130, 236) 100%
   );
 }
 

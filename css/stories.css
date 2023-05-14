@@ -8,6 +8,8 @@
   color: gray;
   font-size: 0.8rem;
   margin: 10px 0;
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 10px;
 }
 
 #favorited-stories,
@@ -31,6 +33,10 @@
   cursor: pointer;
 }
 
+.trash-can:hover {
+  color: crimson;
+}
+
 .story-link {
   color: black;
   font-size: 0.85rem;
@@ -44,6 +50,9 @@
 
 .story-author {
   margin-left: 2em;
+  font-size: 0.85rem;
+  color: green;
+  padding: 6px 0;
 }
 
 .story-user {
